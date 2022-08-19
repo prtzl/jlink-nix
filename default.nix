@@ -44,27 +44,26 @@ stdenv.mkDerivation rec {
   phases = [ "installPhase" "fixupPhase" ];
 
   executables = "JFlashExe JFlashLiteExe JFlashSPICLExe JFlashSPIExe JLinkConfigExe JLinkExe JLinkGDBServerCLExe JLinkGDBServerExe JLinkGUIServerExe JLinkLicenseManagerExe JLinkRegistrationExe JLinkRemoteServerCLExe JLinkRemoteServerExe JLinkRTTClientExe JLinkRTTLoggerExe JLinkRTTViewerExe JLinkSTM32Exe JLinkSWOViewerCLExe JLinkSWOViewerExe JMemExe JRunExe JTAGLoadExe";
-  folder = "JLink_Linux_V${version}_x86_64";
 
   installPhase = ''
     runHook preInstall
-    mkdir -p $out/{bin,lib/udev/rules.d}
-    tar -xvf $src -C $out
+    mkdir -p $out/{bin,lib/udev/rules.d,opt}
+    tar -xvf $src -C $out/opt --strip-components=1
     for exe in ${executables}; do
-      ln -s $out/${folder}/$exe $out/bin
+      ln -s $out/opt/$exe $out/bin
     done
-    ln -s $out/${folder}/99-jlink.rules $out/lib/udev/rules.d
+    ln -s $out/opt/99-jlink.rules $out/lib/udev/rules.d
     runHook postInstall
   '';
 
   postFixup = ''
     for exe in ${executables}; do
-      patchelf --set-interpreter "$(cat $NIX_CC/nix-support/dynamic-linker)" "$out/${folder}/$exe" \
-        --set-rpath ${rpath}:$out/${folder} "$out/${folder}/$exe"
+      patchelf --set-interpreter "$(cat $NIX_CC/nix-support/dynamic-linker)" "$out/opt/$exe" \
+        --set-rpath ${rpath}:$out/opt "$out/opt/$exe"
     done
 
-    for file in $(find $out/${folder} -maxdepth 1 -name '*.so*'); do
-      patchelf --set-rpath ${rpath}:$out/${folder} $file
+    for file in $(find $out/opt -maxdepth 1 -name '*.so*'); do
+      patchelf --set-rpath ${rpath}:$out/opt $file
     done
   '';
 
