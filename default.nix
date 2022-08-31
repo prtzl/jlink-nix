@@ -65,6 +65,7 @@ stdenv.mkDerivation rec {
     for file in $(find $out/opt -maxdepth 1 -name '*.so*'); do
       patchelf --set-rpath ${rpath}:$out/opt $file
     done
+    sed -i '/ACTION/d' $out/opt/99-jlink.rules
   '';
 
   meta = with lib; {
