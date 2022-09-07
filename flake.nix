@@ -1,14 +1,14 @@
 {
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = { self, nixpkgs }:
-  let
-    system = "x86_64-linux";
-    pkgs = nixpkgs.legacyPackages.${system};
-  in
-  {
-    defaultPackage.${system} = pkgs.callPackage ./default.nix {};
-  };
+  outputs = inputs: inputs.flake-utils.lib.eachDefaultSystem (system:
+    let
+      pkgs = inputs.nixpkgs.legacyPackages.${system};
+    in
+    {
+      defaultPackage = pkgs.callPackage ./default.nix { };
+  });
 }

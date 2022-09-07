@@ -18,10 +18,29 @@
 stdenv.mkDerivation rec {
   name = "segger-jlink";
   version = "770c";
-  
+
+  suffix-platform = {
+    aarch64-darwin = "MacOSX";
+    aarch64-linux = "Linux";
+    x86_64-darwin = "MacOSX";
+    x86_64-linux  = "Linux";
+  }.${stdenv.hostPlatform.system} or (throw "Unsupported system: ${stdenv.hostPlatform.system}");
+ 
+  suffix-arch = {
+    aarch64-darwin = "arm64";
+    aarch64-linux = "arm64";
+    x86_64-darwin = "x86_64";
+    x86_64-linux  = "x86_64";
+  }.${stdenv.hostPlatform.system} or (throw "Unsupported system: ${stdenv.hostPlatform.system}");
+
   src = fetchurl {
-    url = "https://www.segger.com/downloads/jlink/JLink_Linux_V${version}_x86_64.tgz";
-    sha256 = "sha256-O+YeDuVquJ2Q1a5AVd/iq9mTpmKfG6cjulb2qY2IYy8=";
+    url = "https://www.segger.com/downloads/jlink/JLink_${suffix-platform}_V${version}_${suffix-arch}.tgz";
+    sha256 = {
+      aarch64-darwin = "sha256-";
+      aarch64-linux = "sha256-";
+      x86_64-darwin = "sha256-";
+      x86_64-linux = "sha256-O+YeDuVquJ2Q1a5AVd/iq9mTpmKfG6cjulb2qY2IYy8="; 
+    }.${stdenv.hostPlatform.system} or (throw "Unsupported system: ${stdenv.hostPlatform.system}");
     netrcPhase = ''
       curlOpts="-X POST -F accept_license_agreement=accepted -F submit=Download+software $curlOpts"
     '';
@@ -73,6 +92,6 @@ stdenv.mkDerivation rec {
     homepage = https://www.segger.com/downloads/jlink/;
     license = licenses.unfree;
     maintainers = with stdenv.lib.maintainers; [ prtzl ];
-    platforms = [ "x86_64-linux" ];
+    platforms = [ "x86_64-linux" "aarch64-linux" "x86_64-darwin" "aarch64-darwin" ];
   };
 }
