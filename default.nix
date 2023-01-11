@@ -1,5 +1,4 @@
-{
-  stdenv
+{ stdenv
 , fetchurl
 , fontconfig
 , freetype
@@ -17,11 +16,11 @@
 
 stdenv.mkDerivation rec {
   name = "segger-jlink";
-  version = "770c";
-  
+  version = "784a";
+
   src = fetchurl {
     url = "https://www.segger.com/downloads/jlink/JLink_Linux_V${version}_x86_64.tgz";
-    sha256 = "sha256-O+YeDuVquJ2Q1a5AVd/iq9mTpmKfG6cjulb2qY2IYy8=";
+    sha256 = "sha256-WWJGDP7bkCgf3fi6OApuXjcn7MrZUXCAn+6yC4MzG9k=";
     netrcPhase = ''
       curlOpts="-X POST -F accept_license_agreement=accepted -F submit=Download+software $curlOpts"
     '';
