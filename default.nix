@@ -16,11 +16,11 @@
 
 stdenv.mkDerivation rec {
   name = "segger-jlink";
-  version = "784a";
+  version = "786c";
 
   src = fetchurl {
     url = "https://www.segger.com/downloads/jlink/JLink_Linux_V${version}_x86_64.tgz";
-    sha256 = "sha256-WWJGDP7bkCgf3fi6OApuXjcn7MrZUXCAn+6yC4MzG9k=";
+    sha256 = "sha256-EMHEm82vUex76f+hoEwuROplNqUfdoHNVNNOVdX2eG0=";
     netrcPhase = ''
       curlOpts="-X POST -F accept_license_agreement=accepted -F submit=Download+software $curlOpts"
     '';
