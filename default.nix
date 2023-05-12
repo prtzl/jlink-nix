@@ -1,5 +1,5 @@
 { stdenv
-, fetchurl
+, fetchzip
 , fontconfig
 , freetype
 , lib
@@ -16,11 +16,11 @@
 
 stdenv.mkDerivation rec {
   name = "segger-jlink";
-  version = "786c";
+  version = "788b";
 
-  src = fetchurl {
+  src = fetchzip {
     url = "https://www.segger.com/downloads/jlink/JLink_Linux_V${version}_x86_64.tgz";
-    sha256 = "sha256-EMHEm82vUex76f+hoEwuROplNqUfdoHNVNNOVdX2eG0=";
+    sha256 = "sha256-KqizPJpO746E+jwnPn7H9I8KZ6Pc9CuToYIRlQ24Vbo=";
     netrcPhase = ''
       curlOpts="-X POST -F accept_license_agreement=accepted -F submit=Download+software $curlOpts"
     '';
@@ -40,37 +40,38 @@ stdenv.mkDerivation rec {
     libXrender
   ] + ":${stdenv.cc.cc.lib}/lib64";
 
-  phases = [ "installPhase" "fixupPhase" ];
-
-  executables = "JFlashExe JFlashLiteExe JFlashSPICLExe JFlashSPIExe JLinkConfigExe JLinkExe JLinkGDBServerCLExe JLinkGDBServerExe JLinkGUIServerExe JLinkLicenseManagerExe JLinkRegistrationExe JLinkRemoteServerCLExe JLinkRemoteServerExe JLinkRTTClientExe JLinkRTTLoggerExe JLinkRTTViewerExe JLinkSTM32Exe JLinkSWOViewerCLExe JLinkSWOViewerExe JMemExe JRunExe JTAGLoadExe";
+  postPatch = ''
+    sed -i '/ACTION/d' 99-jlink.rules
+    for exe in *Exe; do
+      echo "Patching executable $exe"
+      patchelf \
+        --set-interpreter "$(cat $NIX_CC/nix-support/dynamic-linker)" "$exe" \
+        --set-rpath ${rpath}:$out/lib "$exe"
+    done
+    for lib in *.so; do
+      echo "Patching library $lib"
+      patchelf --set-rpath ${rpath}:$out/lib "$lib"
+    done
+  '';
 
   installPhase = ''
     runHook preInstall
-    mkdir -p $out/{bin,lib/udev/rules.d,opt}
-    tar -xvf $src -C $out/opt --strip-components=1
-    for exe in ${executables}; do
-      ln -s $out/opt/$exe $out/bin
+    mkdir -p $out/{bin,lib/udev/rules.d}
+    for exe in $src/*Exe; do
+      ln -s $exe $out/bin
     done
-    ln -s $out/opt/99-jlink.rules $out/lib/udev/rules.d
+    for lib in $src/*.so; do
+      ln -s $lib $out/lib
+    done
+    ln -s $src/99-jlink.rules $out/lib/udev/rules.d
     runHook postInstall
-  '';
-
-  postFixup = ''
-    for exe in ${executables}; do
-      patchelf --set-interpreter "$(cat $NIX_CC/nix-support/dynamic-linker)" "$out/opt/$exe" \
-        --set-rpath ${rpath}:$out/opt "$out/opt/$exe"
-    done
-
-    for file in $(find $out/opt -maxdepth 1 -name '*.so*'); do
-      patchelf --set-rpath ${rpath}:$out/opt $file
-    done
-    sed -i '/ACTION/d' $out/opt/99-jlink.rules
   '';
 
   meta = with lib; {
     description = "Segger JLink Software Pack";
-    homepage = https://www.segger.com/downloads/jlink/;
+    homepage = "https://www.segger.com/downloads/jlink/";
     license = licenses.unfree;
+    mainProgram = "JLinkExe";
     maintainers = with stdenv.lib.maintainers; [ prtzl ];
     platforms = [ "x86_64-linux" ];
   };
