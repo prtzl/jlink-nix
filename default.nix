@@ -16,11 +16,11 @@
 
 stdenv.mkDerivation rec {
   name = "segger-jlink";
-  version = "796a";
+  version = "824";
 
   src = fetchurl {
     url = "https://www.segger.com/downloads/jlink/JLink_Linux_V${version}_x86_64.tgz";
-    sha256 = "sha256-vctzKB74bGxQCzdbByL/f4TDqMSG7K+45IDtH5JawRg";
+    sha256 = "sha256-TsNlwApXdbkHEI+pG9NVK7pJkKdvFYGIGgn+9xJ9q8A=";
     netrcPhase = ''
       curlOpts="-X POST -F accept_license_agreement=accepted -F submit=Download+software $curlOpts"
     '';
@@ -69,7 +69,7 @@ stdenv.mkDerivation rec {
 
   meta = with lib; {
     description = "Segger JLink Software Pack";
-    homepage = https://www.segger.com/downloads/jlink/;
+    homepage = "https://www.segger.com/downloads/jlink/";
     license = licenses.unfree;
     maintainers = with stdenv.lib.maintainers; [ prtzl ];
     platforms = [ "x86_64-linux" ];
