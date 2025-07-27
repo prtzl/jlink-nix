@@ -12,6 +12,7 @@
 , libXfixes
 , libXrandr
 , libXrender
+, gcc
 }:
 
 stdenv.mkDerivation rec {
@@ -38,6 +39,7 @@ stdenv.mkDerivation rec {
     libXfixes
     libXrandr
     libXrender
+    gcc
   ] + ":${stdenv.cc.cc.lib}/lib64";
 
   phases = [ "installPhase" "fixupPhase" ];
