@@ -26,22 +26,21 @@ stdenv.mkDerivation rec {
     curlOpts = "-X POST -F accept_license_agreement=accepted -F submit=Download+software";
   };
 
-  rpath =
-    lib.makeLibraryPath [
-      fontconfig
-      freetype
-      libICE
-      libSM
-      udev
-      libX11
-      libXcursor
-      libXext
-      libXfixes
-      libXrandr
-      libXrender
-      gcc
-    ]
-    + ":${stdenv.cc.cc.lib}/lib64";
+  rpath = lib.makeLibraryPath [
+    fontconfig
+    freetype
+    libICE
+    libSM
+    udev
+    libX11
+    libXcursor
+    libXext
+    libXfixes
+    libXrandr
+    libXrender
+    gcc
+    stdenv.cc.cc.lib
+  ];
 
   phases = [
     "installPhase"
