@@ -1,53 +1,63 @@
-{ stdenv
-, fetchurl
-, fontconfig
-, freetype
-, lib
-, libICE
-, libSM
-, udev
-, libX11
-, libXcursor
-, libXext
-, libXfixes
-, libXrandr
-, libXrender
-, gcc
+{
+  stdenv,
+  fetchurl,
+  fontconfig,
+  freetype,
+  lib,
+  libICE,
+  libSM,
+  udev,
+  libX11,
+  libXcursor,
+  libXext,
+  libXfixes,
+  libXrandr,
+  libXrender,
+  gcc,
 }:
 
 stdenv.mkDerivation rec {
   name = "segger-jlink";
-  version = "824";
+  version = "930";
 
   src = fetchurl {
     url = "https://www.segger.com/downloads/jlink/JLink_Linux_V${version}_x86_64.tgz";
-    sha256 = "sha256-TsNlwApXdbkHEI+pG9NVK7pJkKdvFYGIGgn+9xJ9q8A=";
+    sha256 = "sha256-X6x1z8JwKnL2KlpzVnAuqP5ie22GInEoJ167vlUEAh0";
     netrcPhase = ''
       curlOpts="-X POST -F accept_license_agreement=accepted -F submit=Download+software $curlOpts"
     '';
   };
 
-  rpath = lib.makeLibraryPath [
-    fontconfig
-    freetype
-    libICE
-    libSM
-    udev
-    libX11
-    libXcursor
-    libXext
-    libXfixes
-    libXrandr
-    libXrender
-    gcc
-  ] + ":${stdenv.cc.cc.lib}/lib64";
+  rpath =
+    lib.makeLibraryPath [
+      fontconfig
+      freetype
+      libICE
+      libSM
+      udev
+      libX11
+      libXcursor
+      libXext
+      libXfixes
+      libXrandr
+      libXrender
+      gcc
+    ]
+    + ":${stdenv.cc.cc.lib}/lib64";
 
-  phases = [ "installPhase" "fixupPhase" ];
+  phases = [
+    "installPhase"
+    "fixupPhase"
+  ];
 
-  executables = "JFlashExe JFlashLiteExe JFlashSPICLExe JFlashSPIExe JLinkConfigExe JLinkExe JLinkGDBServerCLExe JLinkGDBServerExe JLinkGUIServerExe JLinkLicenseManagerExe JLinkRegistrationExe JLinkRemoteServerCLExe JLinkRemoteServerExe JLinkRTTClientExe JLinkRTTLoggerExe JLinkRTTViewerExe JLinkSTM32Exe JLinkSWOViewerCLExe JLinkSWOViewerExe JMemExe JRunExe JTAGLoadExe";
+  executables = "DDConditionerExe DevProExe JFlashExe JFlashLiteExe JFlashSPICLExe JFlashSPIExe JLinkConfigExe JLinkExe JLinkGDBServerCLExe JLinkGDBServerExe JLinkGUIServerExe JLinkLicenseManagerExe JLinkRTTClientExe JLinkRTTLoggerExe JLinkRTTViewerExe JLinkRegistrationExe JLinkRemoteServerCLExe JLinkRemoteServerExe JLinkSWOViewerCLExe JLinkSWOViewerExe JLinkServerExe JLinkUSBWebServerExe JLinkXVCDServerExe JMemExe JRunExe JScopeExe JTAGLoadExe";
 
   installPhase = ''
     runHook preInstall
+
+      echo "mamica"
+    echo $src $out
+
     mkdir -p $out/{bin,lib/udev/rules.d,opt}
     tar -xvf $src -C $out/opt --strip-components=1
     for exe in ${executables}; do
