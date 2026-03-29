@@ -80,7 +80,7 @@ stdenv.mkDerivation rec {
   meta = with lib; {
     description = "Segger JLink Software Pack";
     homepage = "https://www.segger.com/downloads/jlink/";
-    license = licenses.unfree;
+    # license = licenses.unfree;
     maintainers = with stdenv.lib.maintainers; [ prtzl ];
     platforms = [ "x86_64-linux" ];
   };
