@@ -23,9 +23,7 @@ stdenv.mkDerivation rec {
   src = fetchurl {
     url = "https://www.segger.com/downloads/jlink/JLink_Linux_V${version}_x86_64.tgz";
     sha256 = "sha256-X6x1z8JwKnL2KlpzVnAuqP5ie22GInEoJ167vlUEAh0";
-    netrcPhase = ''
-      curlOpts="-X POST -F accept_license_agreement=accepted -F submit=Download+software $curlOpts"
-    '';
+    curlOpts = "-X POST -F accept_license_agreement=accepted -F submit=Download+software";
   };
 
   rpath =
