@@ -23,7 +23,6 @@
           }:
           let
             cfg = config.services.jlink;
-
             package = pkgs.callPackage ./default.nix { };
           in
           {
@@ -40,7 +39,10 @@
             config = lib.mkIf cfg.enable {
               environment.systemPackages = [ package ];
 
-              services.udev.packages = lib.mkIf cfg.installUdev [ package ];
+              services.udev = lib.mkIf cfg.installUdev {
+                enable = true;
+                packages = [ package ];
+              };
             };
           };
       };
@@ -52,4 +54,3 @@
         };
     };
 }
-
