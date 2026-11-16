@@ -1,30 +1,43 @@
 {
-  stdenv,
-  fetchurl,
+  curl,
   fontconfig,
   freetype,
+  gcc,
   lib,
   libICE,
   libSM,
-  udev,
   libX11,
   libXcursor,
   libXext,
   libXfixes,
   libXrandr,
   libXrender,
-  gcc,
+  runCommand,
+  stdenv,
+  udev,
+  cacert,
 }:
 
 stdenv.mkDerivation rec {
   name = "segger-jlink";
-  version = "930";
+  version = "994";
 
-  src = fetchurl {
-    url = "https://www.segger.com/downloads/jlink/JLink_Linux_V${version}_x86_64.tgz";
-    sha256 = "sha256-X6x1z8JwKnL2KlpzVnAuqP5ie22GInEoJ167vlUEAh0";
-    curlOpts = "-X POST -F accept_license_agreement=accepted -F submit=Download+software";
-  };
+  src =
+    runCommand "JLink_Linux_V${version}_x86_64.tgz"
+      {
+        nativeBuildInputs = [ curl ];
+        SSL_CERT_FILE = "${cacert}/etc/ssl/certs/ca-bundle.crt";
+
+        outputHashMode = "flat";
+        outputHash = "sha256-il22OfTclQZDP/H8uB/NzgSDri5S4uIfXTMqo0f2G0g=";
+      }
+      ''
+        curl -fL \
+          -F accept_license_agreement=accepted \
+          -F submit=Download+software \
+          "https://www.segger.com/downloads/jlink/JLink_Linux_V${version}_x86_64.tgz" \
+          -o "$out"
+      '';
 
   rpath = lib.makeLibraryPath [
     fontconfig
@@ -47,13 +60,10 @@ stdenv.mkDerivation rec {
     "fixupPhase"
   ];
 
-  executables = "DDConditionerExe DevProExe JFlashExe JFlashLiteExe JFlashSPICLExe JFlashSPIExe JLinkConfigExe JLinkExe JLinkGDBServerCLExe JLinkGDBServerExe JLinkGUIServerExe JLinkLicenseManagerExe JLinkRTTClientExe JLinkRTTLoggerExe JLinkRTTViewerExe JLinkRegistrationExe JLinkRemoteServerCLExe JLinkRemoteServerExe JLinkSWOViewerCLExe JLinkSWOViewerExe JLinkServerExe JLinkUSBWebServerExe JLinkXVCDServerExe JMemExe JRunExe JScopeExe JTAGLoadExe";
+  executables = "DDConditionerExe DevProExe JFlashExe JFlashLiteExe JFlashSPICLExe JFlashSPIExe JLinkConfigExe JLinkConnServerExe JLinkExe JLinkGDBServerCLExe JLinkGDBServerExe JLinkGUIServerExe JLinkLicenseManagerExe JLinkRTTClientExe JLinkRTTLoggerExe JLinkRTTViewerExe JLinkRegistrationExe JLinkRemoteServerCLExe JLinkRemoteServerExe JLinkSWOViewerCLExe JLinkSWOViewerExe JLinkUSBWebServerExe JLinkXVCDServerExe JMemExe JRunExe JScopeExe JTAGLoadExe";
 
   installPhase = ''
     runHook preInstall
-
-      echo "mamica"
-    echo $src $out
 
     mkdir -p $out/{bin,lib/udev/rules.d,opt}
     tar -xvf $src -C $out/opt --strip-components=1
